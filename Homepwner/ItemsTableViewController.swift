@@ -44,15 +44,23 @@ class ItemsTableViewController: UITableViewController {
     
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 2
+        if itemStore.allItems.count == 0 {
+            return 0
+        } else {
+            return 2
+        }
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        if section == 0 {
-            return itemsUnder50.count
+        if itemStore.allItems.count == 0 {
+            return 1
         } else {
-            return itemsOver50.count
+            if section == 0 {
+                return itemsUnder50.count
+            } else {
+                return itemsOver50.count
+            }
         }
     }
 
@@ -60,16 +68,19 @@ class ItemsTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "itemCell", for: indexPath)
 
-        
         // Configure the cell...
-        if indexPath.section == 0 {
-            let item = itemsUnder50[indexPath.row]
-            cell.textLabel?.text = item.name
-            cell.detailTextLabel?.text = "$\(item.valueInDollars)"
+        if itemStore.allItems.count == 0 {
+            cell.textLabel?.text = "No more items"
         } else {
-            let item = itemsOver50[indexPath.row]
-            cell.textLabel?.text = item.name
-            cell.detailTextLabel?.text = "$\(item.valueInDollars)"
+            if indexPath.section == 0 {
+                let item = itemsUnder50[indexPath.row]
+                cell.textLabel?.text = item.name
+                cell.detailTextLabel?.text = "$\(item.valueInDollars)"
+            } else {
+                let item = itemsOver50[indexPath.row]
+                cell.textLabel?.text = item.name
+                cell.detailTextLabel?.text = "$\(item.valueInDollars)"
+            }
         }
         return cell
     }
