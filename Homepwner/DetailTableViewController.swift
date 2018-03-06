@@ -8,7 +8,7 @@
 
 import UIKit
 
-class DetailViewController: UIViewController, UITextFieldDelegate {
+class DetailViewController: UIViewController, UITextFieldDelegate,UINavigationControllerDelegate ,UIImagePickerControllerDelegate {
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var serialTextField: UITextField!
     @IBOutlet weak var valueTextField: UITextField!
@@ -20,6 +20,8 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
             navigationItem.title = item.name
         }
     }
+    
+    var imageStore: ImageStore!
     
     let numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -37,11 +39,6 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        nameTextField.text = item.name
-        serialTextField.text = item.serialNumber
-        valueTextField.text = numberFormatter.string(from: NSNumber(value: item.valueInDollars))
-        dateLabel.text = dateFormatter.string(from: item.dateCreated)
         
     }
 
@@ -61,9 +58,40 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        nameTextField.text = item.name
+        serialTextField.text = item.serialNumber
+        valueTextField.text =
+            numberFormatter.string(from: NSNumber(value: item.valueInDollars))
+        dateLabel.text = dateFormatter.string(from: item.dateCreated)
+        // Get the item key
+        let key = item.itemKey
+        // If there is an associated image with the item
+        // display it on the image view
+        let imageToDisplay = imageStore.image(forKey: key)
+        imageView.image = imageToDisplay
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController,
+                               didFinishPickingMediaWithInfo info: [String: Any]) {
+        // Get picked image from info dictionary
+        let image = info[UIImagePickerControllerOriginalImage] as! UIImage
+        
+        // Store the image in the ImageStore for the item's key
+        imageStore.setImage(image, forKey: item.itemKey)
+        
+        // Put that image on the screen in the image view
+        imageView.image = image
+        // Take image picker off the screen -
+        // you must call this dismiss method
+        dismiss(animated: true, completion: nil)
     }
     
     @IBAction func backgroundTapped(_ sender: UITapGestureRecognizer) {
@@ -78,6 +106,9 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
         } else {
             imagePicker.sourceType = .photoLibrary
         }
+        imagePicker.delegate = self
+        
+        present(imagePicker, animated: true, completion: nil)
     }
     
 }
